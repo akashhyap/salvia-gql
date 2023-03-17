@@ -8,7 +8,7 @@ const CheckoutButton= () => {
             const decoded = jwtDecode<{ data: { customer_id: string } }>(jwtSession);
             return decoded.data.customer_id;
         } catch( err ) {
-            console.warn(err);
+            console.warn("err:", err);
             return null;
         }
     } )
