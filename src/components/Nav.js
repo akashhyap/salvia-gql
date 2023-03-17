@@ -8,9 +8,9 @@ const Navigation = () => {
   const productsCount =
     null !== cart && Object.keys(cart).length ? cart.totalProductsCount : "";
 
-    console.log("cart:", cart);
-    console.log("productsCount:", productsCount);
-    console.log("useContext(CartContext):", useContext(CartContext));
+    // console.log("cart:", cart);
+    // console.log("productsCount:", productsCount);
+    // console.log("useContext(CartContext):", useContext(CartContext));
   return (
     <ul className="py-3 bg-slate-900 text-white text-center">
      

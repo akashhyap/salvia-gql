@@ -1,32 +1,37 @@
-import React, { useState, useEffect } from 'react';
-import jwtDecode from 'jwt-decode';
+import React, { useState } from "react";
+import jwtDecode from "jwt-decode";
 
 const CheckoutButton = () => {
-  const [session, setSession] = useState(null);
-
-  useEffect(() => {
-    const jwtSession = window.localStorage.getItem('woo-session');
-    if (jwtSession) {
-      try {
-        const decoded = jwtDecode<{ data: { customer_id: string } }>(jwtSession);
-        setSession(decoded.data.customer_id);
-      } catch (err) {
-        console.warn('Error decoding session:', err);
+    const [session, setSession] = useState(() => {
+      const jwtSession = window.localStorage.getItem("woo-session");
+  
+      let session = null;
+  
+      if (jwtSession) {
+        try {
+          const decoded = jwtDecode(jwtSession);
+  
+          if (typeof decoded.data.customer_id === "string") {
+            session = decoded.data.customer_id;
+            console.info("decoded session:", session);
+          } else {
+            console.error("Invalid session ID format");
+          }
+        } catch (error) {
+          console.error("Error decoding session:", error);
+        }
       }
-    }
-  }, []);
-
-  const checkoutLink = () => {
-    if (session) {
-      window.open(`https://woocommerce-186938-3327038.cloudwaysapps.com/checkout?session_id=${session}`);
-    } else {
-      console.warn('Session not found');
-    }
+  
+      return session;
+    });
+  
+    const checkoutLink = () => {
+      console.log("session id:", session);
+      window.open(`https://woocommerce-186938-3327038.cloudwaysapps.com/checkout?session_id=${session}`)
+    };
+  
+    return <button onClick={() => checkoutLink()}>Checkout</button>;
   };
-
-  return (
-    <button className='p-2 bg-slate-900 rounded-md text-white' onClick={checkoutLink}>Checkout</button>
-  );
-};
-
-export default CheckoutButton;
+  
+  export default CheckoutButton;
+  
