@@ -21,7 +21,7 @@ const CartItem = ({
    * @return {void}
    */
   const handleQtyChange = (event, cartKey) => {
-    if (typeof window === window) {
+    if (typeof window !== undefined) {
       event.stopPropagation();
 
       // If the previous update cart mutation request is still processing, then return.
@@ -78,7 +78,7 @@ const CartItem = ({
           type="number"
           min="1"
           data-cart-key={item.cartKey}
-          className={`woo-next-cart-qty-input form-control ${
+          className={`woo-next-cart-qty-input form-control border ${
             updateCartProcessing ? "opacity-25 cursor-not-allowed" : ""
           } `}
           value={productCount}

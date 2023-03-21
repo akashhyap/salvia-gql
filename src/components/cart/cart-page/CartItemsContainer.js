@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { useContext, useState } from "react";
-import { CartContext } from "@/components/context/AppContext";
+import { useContext, useState, useRef, useEffect } from "react";
+import { CartContext } from "@/components/context/AppProvider";
 import { getFormattedCart, getUpdatedItems } from "@/lib/util";
 
 import CartItem from "./CartItem";
@@ -14,6 +14,15 @@ import { isEmpty } from "lodash";
 import CheckoutButton from "@/components/CheckoutButton";
 
 const CartItemsContainer = () => {
+  const mountedRef = useRef(false);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
   // @TODO wil use it in future variations of the project.
   const [cart, setCart] = useContext(CartContext);
   const [requestError, setRequestError] = useState(null);
@@ -27,7 +36,9 @@ const CartItemsContainer = () => {
       localStorage.setItem("woo-next-cart", JSON.stringify(updatedCart));
 
       // Update cart data in React Context.
-      setCart(updatedCart);
+      if (mountedRef.current) {
+        setCart(updatedCart);
+      }
     },
   });
 
@@ -114,11 +125,9 @@ const CartItemsContainer = () => {
       },
     });
   };
-
- 
-
+  console.log("cart:",cart);
   return (
-    <div className="cart product-cart-container container mx-auto my-32 px-4 xl:px-0">
+    <div className="cart product-cart-container max-w-6xl mx-auto my-32 px-4 xl:px-0">
       {cart ? (
         <div className="woo-next-cart-wrapper container">
           <div className="cart-header grid grid-cols-2 gap-4">
@@ -159,9 +168,9 @@ const CartItemsContainer = () => {
               </thead>
               <tbody>
                 {cart.products.length &&
-                  cart.products.map((item) => (
+                  cart.products.map((item,i) => (
                     <CartItem
-                      key={item.productId}
+                      key={item.cartKey}
                       item={item}
                       updateCartProcessing={updateCartProcessing}
                       products={cart.products}
@@ -196,8 +205,7 @@ const CartItemsContainer = () => {
                 </table>
 
                 {/* place for WooCommerce checkout page */}
-                <CheckoutButton/>
-                
+                <CheckoutButton />
               </div>
             </div>
           </div>
@@ -205,8 +213,7 @@ const CartItemsContainer = () => {
           {/* Display Errors if any */}
           {requestError ? (
             <div className="row woo-next-cart-total-container mt-5">
-              {" "}
-              {requestError}{" "}
+              {requestError}
             </div>
           ) : (
             ""
@@ -216,12 +223,9 @@ const CartItemsContainer = () => {
         <div className="container mx-auto my-32 px-4 xl:px-0">
           <h2 className="text-2xl mb-5">No items in the cart</h2>
           <Link href="/" legacyBehavior>
-            <button className="bg-purple-600 text-white px-5 py-3 rounded-sm">
-              <span className="woo-next-cart-checkout-txt">
-                Add New Products
-              </span>
-              <i className="fas fa-long-arrow-alt-right" />
-            </button>
+            <a className="bg-purple-600 text-white px-5 py-3 rounded-sm">
+              Add New Products
+            </a>
           </Link>
         </div>
       )}

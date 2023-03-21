@@ -5,29 +5,15 @@ import { gql } from "@apollo/client";
 import Link from "next/link";
 
 import Layout from "@/components/Layout";
-import AddToCartButton from "@/components/cart/AddToCartButton";
+import Products from "@/components/products";
 
-export default function Home({ products }) {
-  // console.log("products:",products);
+export default function Home({ products, siteLogoUrl }) {
+  // console.log("home products:",products);
   return (
-    <Layout>
+    <Layout siteLogoUrl={siteLogoUrl}>
       <main className="max-w-6xl mx-auto py-6">
-        <div className="grid grid-cols-3">
-          {products?.edges.map((product) => {
-            // console.log("product node:", product.node);
-            const { id, name, price, slug } = product.node;
-            return (
-              <div key={id} href={`/products/${slug}`}>
-                <Link key={id} href={`/products/${slug}`} legacyBehavior>
-                  <a>
-                    <h2 className="text-xl py-2">{name}</h2>
-                    <p>{price}</p>
-                  </a>
-                </Link>
-                <AddToCartButton product={product.node}/>
-              </div>
-            );
-          })}
+        <div className="grid grid-cols-1">
+          <Products products={products} />
         </div>
       </main>
     </Layout>
@@ -37,6 +23,9 @@ export default function Home({ products }) {
 export async function getStaticProps() {
   const PRODUCT_QUERY = gql`
     query {
+      getHeader {
+        siteLogoUrl
+      }
       products(first: 10) {
         edges {
           node {
@@ -44,7 +33,7 @@ export async function getStaticProps() {
             slug
             name
             type
-            productId: databaseId
+            databaseId
             shortDescription
             image {
               id
@@ -74,11 +63,13 @@ export async function getStaticProps() {
     query: PRODUCT_QUERY,
   });
   const products = response?.data?.products;
+  const siteLogoUrl = response?.data?.getHeader.siteLogoUrl;
 
   return {
     props: {
       products,
+      siteLogoUrl,
     },
-    revalidate: 1
+    revalidate: 1,
   };
 }

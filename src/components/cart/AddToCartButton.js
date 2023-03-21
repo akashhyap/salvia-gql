@@ -1,62 +1,49 @@
-import { useState, useContext } from "react";
-import { useQuery, useMutation } from "@apollo/client";
+import { useState } from "react";
+import { useMutation } from "@apollo/client";
 import Link from "next/link";
 import { v4 } from "uuid";
 import cx from "classnames";
 
-import { CartContext } from "../context/AppContext";
+import { useCart } from "../hook/useCart";
 import { getFormattedCart } from "@/lib/util";
 import GET_CART from "@/lib/query/get-cart";
 import ADD_TO_CART from "@/lib/mutation/add-to-cart";
 
-const AddToCart = (props) => {
-  const { product } = props;
+const AddToCartButton = (props) => {
+  const { product, selectedVariation } = props;
 
-  // console.log("cart btn:", props);
   const productQryInput = {
-    clientMutationId: v4(), // Generate a unique id.
-    productId: product.productId,
+    clientMutationId: v4(),
+    productId: selectedVariation
+      ? selectedVariation.databaseId
+      : product.databaseId,
+    variationId: selectedVariation ? selectedVariation.variationId : null,
   };
 
-  const [cart, setCart] = useContext(CartContext);
   const [showViewCart, setShowViewCart] = useState(false);
   const [requestError, setRequestError] = useState(null);
 
-  // Get Cart Data.
-  const { data, refetch } = useQuery(GET_CART, {
-    notifyOnNetworkStatusChange: true,
-    onCompleted: () => {
-      // Update cart in the localStorage.
-      const updatedCart = getFormattedCart(data);
-      localStorage.setItem("woo-next-cart", JSON.stringify(updatedCart));
+  const { cart, refetch, error } = useCart();
 
-      // Update cart data in React Context.
-      setCart(updatedCart);
-    },
-  });
+  const [addToCart, { loading: addToCartLoading, error: addToCartError }] =
+    useMutation(ADD_TO_CART, {
+      variables: {
+        input: productQryInput,
+      },
+      onCompleted: () => {
+        // On Success:
+        // 1. Make the GET_CART query to update the cart with new values in React context.
+        refetch();
 
-  // Add to Cart Mutation.
-  const [
-    addToCart,
-    { data: addToCartRes, loading: addToCartLoading, error: addToCartError },
-  ] = useMutation(ADD_TO_CART, {
-    variables: {
-      input: productQryInput,
-    },
-    onCompleted: () => {
-      // On Success:
-      // 1. Make the GET_CART query to update the cart with new values in React context.
-      refetch();
-
-      // 2. Show View Cart Button
-      setShowViewCart(true);
-    },
-    onError: (error) => {
-      if (error) {
-        setRequestError(error?.graphQLErrors?.[0]?.message ?? "");
-      }
-    },
-  });
+        // 2. Show View Cart Button
+        setShowViewCart(true);
+      },
+      onError: (error) => {
+        if (error) {
+          setRequestError("error:", error?.graphQLErrors?.[0]?.message ?? "");
+        }
+      },
+    });
 
   const handleAddToCartClick = async () => {
     setRequestError(null);
@@ -65,7 +52,7 @@ const AddToCart = (props) => {
 
   return (
     <div>
-      {/*	Check if its an external product then put its external buy link */}
+      {/* Check if it's an external product then put its external buy link */}
       {"ExternalProduct" === product.__typename ? (
         <a
           href={product?.externalUrl ?? "/"}
@@ -81,7 +68,7 @@ const AddToCart = (props) => {
           className={cx(
             "px-3 py-1 rounded-sm mr-3 text-sm border-solid border border-current",
             {
-              "hover:bg-purple-600 hover:text-white hover:border-purple-600":
+              "hover:bg-slate-900 hover:text-white hover:border-slate-900":
                 !addToCartLoading,
             },
             { "opacity-50 cursor-not-allowed": addToCartLoading }
@@ -92,7 +79,7 @@ const AddToCart = (props) => {
       )}
       {showViewCart ? (
         <Link href="/cart">
-          <button className="px-3 py-1 rounded-sm text-sm border-solid border border-current inline-block hover:bg-purple-600 hover:text-white hover:border-purple-600">
+          <button className="px-3 py-1 rounded-sm mr-3 text-sm border-solid border border-current hover:bg-slate-900 hover:text-white hover:border-slate-900">
             View Cart
           </button>
         </Link>
@@ -103,4 +90,4 @@ const AddToCart = (props) => {
   );
 };
 
-export default AddToCart;
+export default AddToCartButton;

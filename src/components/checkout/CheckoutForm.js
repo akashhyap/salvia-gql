@@ -4,7 +4,7 @@ import cx from 'classnames'
 
 import YourOrder from "./YourOrder";
 import PaymentModes from "./PaymentModes";
-import { CartContext } from '../context/AppContext';
+import { CartContext } from '../context/AppProvider';
 import validateAndSanitizeCheckoutForm from '@/lib/validator/checkout';
 import { getFormattedCart,createCheckoutData } from '@/lib/util';
 import OrderSuccess from "./OrderSuccess";
