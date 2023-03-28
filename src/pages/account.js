@@ -1,5 +1,5 @@
 // pages/account.js
-import jwt from 'jsonwebtoken';
+import jwt from "jsonwebtoken";
 import cookie from "cookie";
 import { useEffect } from "react";
 import { useRouter } from "next/router";
@@ -8,15 +8,19 @@ import Cookies from "js-cookie";
 import Layout from "@/components/Layout";
 import { useIsAuthenticated } from "@/components/hook/useIsAuthenticated";
 import { verifyToken } from "@/lib/auth";
+import client from "@/lib/apollo";
+import { gql } from "@apollo/client";
 
-function Account({ userEmail }) {
+function Account({ siteLogoUrl, userEmail }) {
   const router = useRouter();
-  const { isAuthenticated } = useIsAuthenticated();
+  const { isAuthenticated, setIsAuthenticated, loading } = useIsAuthenticated(); // Update this line to include loading
+
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (!loading && !isAuthenticated) {
+      // Update this line to consider the loading state
       router.push("/login");
     }
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated, router, loading]); // Add loading to the dependency array
 
   const handleLogout = async () => {
     try {
@@ -37,12 +41,17 @@ function Account({ userEmail }) {
   };
 
   return (
-    <Layout>
-      <div className="container mx-auto">
-        <h1>User Account</h1>
+    <Layout siteLogoUrl={siteLogoUrl}>
+      <main className="max-w-6xl mx-auto py-6">
+        <h1 className="text-4xl mb-5">User Account</h1>
         <p>Email: {userEmail}</p>
-        <button onClick={handleLogout}>Logout</button>
-      </div>
+        <button
+          onClick={handleLogout}
+          className="px-3 py-1 mt-5 rounded-sm mr-3 text-sm border-solid border border-current hover:bg-slate-900 hover:text-white hover:border-slate-900"
+        >
+          Logout
+        </button>
+      </main>
     </Layout>
   );
 }
@@ -50,10 +59,23 @@ function Account({ userEmail }) {
 export default Account;
 
 export async function getServerSideProps(context) {
+  const ACCOUNT_QUERY = gql`
+    query {
+      getHeader {
+        siteLogoUrl
+      }
+    }
+  `;
+  const response = await client.query({
+    query: ACCOUNT_QUERY,
+  });
+
+  const siteLogoUrl = response?.data?.getHeader.siteLogoUrl;
+
   const cookies = cookie.parse(context.req.headers.cookie || "");
   const token = cookies["authToken"];
 
-  console.log("Token in getServerSideProps:", token); // Debug: log the token value from the cookie
+  // console.log("Token in getServerSideProps:", token); // Debug: log the token value from the cookie
 
   if (!token) {
     return {
@@ -66,7 +88,7 @@ export async function getServerSideProps(context) {
 
   const userData = jwt.decode(token);
 
-  console.log("User data in getServerSideProps:", userData); // Debug: log the decoded user data
+  // console.log("User data in getServerSideProps:", userData); // Debug: log the decoded user data
 
   if (!userData) {
     return {
@@ -74,12 +96,11 @@ export async function getServerSideProps(context) {
         destination: "/login",
         permanent: false,
       },
-      props: { userEmail: '' },
+      props: { userEmail: "" },
     };
   }
 
   return {
-    props: { userEmail: userData.userEmail },
+    props: { userEmail: userData.userEmail, siteLogoUrl },
   };
 }
-

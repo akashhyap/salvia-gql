@@ -21,7 +21,7 @@ const Home = ({ products, siteLogoUrl }) => {
     </Layout>
   );
 };
-export default withAuth(Home);
+export default Home;
 
 export async function getStaticProps() {
   const PRODUCT_QUERY = gql`

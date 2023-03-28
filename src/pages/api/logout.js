@@ -4,7 +4,7 @@ export default async function handler(req, res) {
     // Set the 'auth-token' and 'userToken' cookies to an empty value and set them to expire immediately
     res.setHeader('Set-Cookie', [
       'auth-token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; SameSite=Lax',
-      'userToken=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax'
+      // 'userToken=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax'
     ]);
 
     // Send success response

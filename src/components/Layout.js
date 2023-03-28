@@ -2,7 +2,6 @@ import Head from "next/head";
 import client from "@/lib/apollo";
 import Header from "./Header";
 import { ApolloProvider } from "@apollo/client";
-import { AppProvider } from "./context/AppProvider";
 
 const Layout = (props) => {
   return (
