@@ -1,3 +1,4 @@
+// pages/index.js
 import Head from "next/head";
 import Image from "next/image";
 import client from "@/lib/apollo";
@@ -6,8 +7,9 @@ import Link from "next/link";
 
 import Layout from "@/components/Layout";
 import Products from "@/components/products";
+import { withAuth } from "@/lib/utils/withAuth";
 
-export default function Home({ products, siteLogoUrl }) {
+const Home = ({ products, siteLogoUrl }) => {
   // console.log("home products:",products);
   return (
     <Layout siteLogoUrl={siteLogoUrl}>
@@ -18,7 +20,8 @@ export default function Home({ products, siteLogoUrl }) {
       </main>
     </Layout>
   );
-}
+};
+export default withAuth(Home);
 
 export async function getStaticProps() {
   const PRODUCT_QUERY = gql`

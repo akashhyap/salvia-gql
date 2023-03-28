@@ -3,7 +3,7 @@ import { isArray, isEmpty } from "lodash";
 import Product from "./product";
 
 const Products = ({ products }) => {
-  console.log("products page", products);
+  // console.log("products page", products);
 
   return (
     <div className="px-4 py-10 lg:px-6 lg:py-14 mx-auto">

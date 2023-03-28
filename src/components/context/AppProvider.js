@@ -38,7 +38,7 @@ export const AppProvider = ({ children }) => {
 
   return (
     <CartContext.Provider value={[cart, setCart, session, setSession]}>
-      {children}
+     {children}
     </CartContext.Provider>
   );
 };

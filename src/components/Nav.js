@@ -1,12 +1,39 @@
+import { useRouter } from "next/router";
 import Link from "next/link";
-import { useCart } from "./hook/useCart";
 import Image from "next/image";
+import { useCart } from "./hook/useCart";
+import { useIsAuthenticated } from "./hook/useIsAuthenticated";
+import Cookies from "js-cookie";
 
-const Navigation = ({siteLogoUrl}) => {
+const Navigation = ({ siteLogoUrl }) => {
+  const router = useRouter();
+
+  const { isAuthenticated, setIsAuthenticated } = useIsAuthenticated();
+
+  // console.log("isAuthenticated in Navigation:", isAuthenticated);
+
   const { cart } = useCart();
 
   const productsCount =
     null !== cart && Object.keys(cart).length ? cart.totalProductsCount : "";
+
+  const handleLogout = async () => {
+    try {
+      const response = await fetch("/api/logout", {
+        method: "POST",
+      });
+
+      if (response.ok) {
+        setIsAuthenticated(false);
+        Cookies.remove("authToken"); // Add this line to remove authToken cookie
+        router.push("/");
+      } else {
+        throw new Error("Logout failed");
+      }
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
 
   return (
     <nav
@@ -30,8 +57,23 @@ const Navigation = ({siteLogoUrl}) => {
               />
             </a>
           </Link>
-        ): (
+        ) : (
           <div>SalviaExtact</div>
+        )}
+
+        {isAuthenticated ? (
+          <>
+            <Link href="/account" legacyBehavior>
+              <a className="text-white">Account</a>
+            </Link>
+            <button className="text-white" onClick={handleLogout}>
+              Logout
+            </button>
+          </>
+        ) : (
+          <Link href="/login" legacyBehavior>
+            <a className="text-white">Login</a>
+          </Link>
         )}
 
         <div className="relative">
@@ -52,7 +94,9 @@ const Navigation = ({siteLogoUrl}) => {
                 />
               </svg>
               {productsCount ? (
-                <span className="absolute -top-2 -right-3">({productsCount})</span>
+                <span className="absolute -top-2 -right-3">
+                  ({productsCount})
+                </span>
               ) : (
                 ""
               )}

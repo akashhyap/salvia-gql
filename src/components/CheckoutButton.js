@@ -27,7 +27,7 @@ const CheckoutButton = () => {
   
     const checkoutLink = () => {
       console.log("session id:", session);
-      window.open(`https://woocommerce-186938-3327038.cloudwaysapps.com/checkout?session_id=${session}`)
+      // window.open(`https://woocommerce-186938-3327038.cloudwaysapps.com/checkout?session_id=${session}`)
     };
   
     return <button onClick={() => checkoutLink()}>Checkout</button>;
