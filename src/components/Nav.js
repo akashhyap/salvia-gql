@@ -68,10 +68,10 @@ const Navigation = ({ siteLogoUrl }) => {
         />
       )}
       <nav
-        className="max-w-[85rem] w-full mx-auto px-4 sm:flex sm:items-center sm:justify-between"
+        className="relative max-w-[85rem] w-full mx-auto px-4 sm:flex sm:items-center sm:justify-between sm:px-6 lg:px-8"
         aria-label="Global"
       >
-        <div className="flex flex-row items-center gap-5 mt-5 sm:justify-end sm:mt-0 sm:pl-5">
+        <div className="flex items-center justify-between">
           {siteLogoUrl ? (
             <Link href="/" legacyBehavior>
               <a
@@ -89,25 +89,30 @@ const Navigation = ({ siteLogoUrl }) => {
               </a>
             </Link>
           ) : (
-            <div>SalviaExtact</div>
-          )}
-
-          {isAuthenticated ? (
-            <>
-              <Link href="/account" legacyBehavior>
-                <a className="text-white">Account</a>
+            <div>
+              <Link href="/" legacyBehavior>
+                <a className="text-white">SalviaExtact</a>
               </Link>
-              <button className="text-white" onClick={handleLogout}>
-                Logout
-              </button>
-            </>
-          ) : (
-            <button className="text-white" onClick={openAuthModal}>
-              Login
-            </button>
+            </div>
           )}
+        </div>
+        <div id="navbar-collapse-with-animation" className="hs-collapse hidden overflow-hidden transition-all duration-300 basis-full grow sm:block">
+          <div className="flex flex-col gap-y-4 gap-x-0 mt-5 sm:flex-row sm:items-center sm:justify-end sm:gap-y-0 sm:gap-x-7 sm:mt-0 sm:pl-7">
+            {isAuthenticated ? (
+              <>
+                <Link href="/account" legacyBehavior>
+                  <a className="text-white">Account</a>
+                </Link>
+                <button className="text-white" onClick={handleLogout}>
+                  Logout
+                </button>
+              </>
+            ) : (
+              <button className="text-white" onClick={openAuthModal}>
+                Login
+              </button>
+            )}
 
-          <div className="relative">
             <Link href="/cart" legacyBehavior>
               <a className="relative text-white">
                 <svg
