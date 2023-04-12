@@ -47,6 +47,8 @@ const Navigation = ({ siteLogoUrl }) => {
       if (response.ok) {
         setIsAuthenticated(false);
         Cookies.remove("authToken"); // Add this line to remove authToken cookie
+        localStorage.removeItem('authToken');
+
         router.push("/");
       } else {
         throw new Error("Logout failed");
