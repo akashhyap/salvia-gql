@@ -41,7 +41,7 @@ const UserDashboard = () => {
   const handleLogout = () => {
     localStorage.removeItem('woo-session');
     console.log('Logged out successfully.');
-    router.push('/login');
+    router.push('/');
   };
 
   if (loading) return <p>Loading...</p>;

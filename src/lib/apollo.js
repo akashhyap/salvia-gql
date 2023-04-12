@@ -1,5 +1,10 @@
 import fetch from "node-fetch";
-import { ApolloClient, ApolloLink, InMemoryCache, HttpLink } from "@apollo/client";
+import {
+  ApolloClient,
+  ApolloLink,
+  InMemoryCache,
+  HttpLink,
+} from "@apollo/client";
 
 const httpLink = new HttpLink({
   uri: `${process.env.NEXT_PUBLIC_WOOCOMMERCE_STORE_URL}/graphql`,
@@ -13,16 +18,22 @@ const httpLink = new HttpLink({
 export const middleware = new ApolloLink((operation, forward) => {
   let session = null;
 
-  if (typeof window !== 'undefined') {
+  if (typeof window !== "undefined") {
     session = localStorage.getItem("woo-session");
   }
 
   if (session) {
-    operation.setContext(({ headers = {} }) => ({
-      headers: {
-        "woocommerce-session": `Session ${session}`,
-      },
-    }));
+    console.log("Session token:", session);
+    operation.setContext(({ headers = {} }) => {
+      console.log("Existing headers:", headers);
+      return {
+        headers: {
+          ...headers,
+          "woocommerce-session": `Session ${session}`,
+        },
+      };
+    });
+    console.log("Session header added:", `Session ${session}`);
   }
 
   return forward(operation);
@@ -35,7 +46,7 @@ export const middleware = new ApolloLink((operation, forward) => {
  */
 export const afterware = new ApolloLink((operation, forward) => {
   return forward(operation).map((response) => {
-    if (typeof window === 'undefined') {
+    if (typeof window === "undefined") {
       return response;
     }
 

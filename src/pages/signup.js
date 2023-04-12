@@ -31,7 +31,7 @@ export default function Signup() {
       localStorage.setItem("token", token);
 
       console.log("Registration successful");
-      router.push("/login");
+      router.push("/");
     } catch (error) {
       console.error("Registration failed:", error);
       console.log("Registration failed");

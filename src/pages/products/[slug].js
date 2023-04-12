@@ -7,7 +7,7 @@ import Image from "next/image";
 import { useState } from "react";
 import AddToCartButton from "@/components/cart/AddToCartButton";
 
-export default function Product({ product, siteLogoUrl }) {
+export default function Product({ product }) {
   // console.log("product single:", product);
 
   const [selectedVariationId, setSelectedVariationId] = useState();
@@ -30,7 +30,7 @@ export default function Product({ product, siteLogoUrl }) {
   };
 
   return (
-    <Layout siteLogoUrl={siteLogoUrl}>
+    <Layout>
       <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto mb-10 mt-10">
         <div>
           <figure className="relative pt-[85%] border border-slate-300 rounded-lg overflow-hidden">
@@ -125,9 +125,7 @@ export async function getStaticProps({ params }) {
   // console.log("params:", params);
   const GET_SINGLE_PRODUCT = gql`
     query Product($id: ID!) {
-      getHeader {
-        siteLogoUrl
-      }
+     
       product(id: $id, idType: SLUG) {
         id
         databaseId
@@ -213,7 +211,7 @@ export async function getStaticProps({ params }) {
   return {
     props: {
       product: data.product,
-      siteLogoUrl: data.getHeader.siteLogoUrl,
+      // siteLogoUrl: data.getHeader.siteLogoUrl,
     },
   };
 }

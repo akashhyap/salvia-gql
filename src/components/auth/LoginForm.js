@@ -23,8 +23,9 @@ const LoginForm = ({ toggleForm, onLoginSuccess }) => {
     });
 
     if (response.ok) {
-      const { authToken, token } = await response.json();
+      const { token, woocommerceSession } = await response.json();
       localStorage.setItem("authToken", token);
+      localStorage.setItem("woo-session", woocommerceSession); // Add this line
       setIsAuthenticated(true);
       console.log("Login successful");
       onLoginSuccess();

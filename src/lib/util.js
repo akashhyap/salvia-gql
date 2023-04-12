@@ -1,6 +1,6 @@
 import { v4 } from 'uuid';
-import {isEmpty, isArray} from 'lodash'
-
+import {isEmpty, isArray, constant} from 'lodash'
+import atob from "atob";
 /**
  * Extracts and returns float value from a string.
  *
@@ -285,3 +285,9 @@ export const getUpdatedItems = ( products, newQty, cartKey ) => {
 	return updatedItems;
 
 };
+
+export const decodeUserId = (encodedUserId) => {
+	const decoded = atob(encodedUserId);
+  const id = parseInt(decoded.split(":")[1], 10);
+  return id;
+}

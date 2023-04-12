@@ -3,9 +3,9 @@ import { gql } from "@apollo/client";
 import Layout from "@/components/Layout";
 import CartItemsContainer from "@/components/cart/cart-page/CartItemsContainer";
 
-const Cart = ({ siteLogoUrl }) => {
+const Cart = () => {
   return (
-    <Layout siteLogoUrl={siteLogoUrl}>
+    <Layout>
       <CartItemsContainer />
     </Layout>
   );
@@ -13,22 +13,22 @@ const Cart = ({ siteLogoUrl }) => {
 
 export default Cart;
 
-export async function getStaticProps() {
-  const GET_HEADER = gql`
-    query Header {
-      getHeader {
-        siteLogoUrl
-      }
-    }
-  `;
+// export async function getStaticProps() {
+//   const GET_HEADER = gql`
+//     query Header {
+//       getHeader {
+//         siteLogoUrl
+//       }
+//     }
+//   `;
 
-  const { data } = await client.query({
-    query: GET_HEADER,
-  });
+//   const { data } = await client.query({
+//     query: GET_HEADER,
+//   });
 
-  return {
-    props: {
-      siteLogoUrl: data.getHeader.siteLogoUrl,
-    },
-  };
-}
+//   return {
+//     props: {
+//       siteLogoUrl: data.getHeader.siteLogoUrl,
+//     },
+//   };
+// }

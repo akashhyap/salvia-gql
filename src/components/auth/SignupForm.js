@@ -12,22 +12,22 @@ const SignupForm = ({toggleForm}) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (password !== passwordConfirmation) {
-      alert("Passwords do not match");
-      return;
-    }
+    // if (password !== passwordConfirmation) {
+    //   alert("Passwords do not match");
+    //   return;
+    // }
 
     const response = await fetch("/api/signup", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ name, email, password }),
+      body: JSON.stringify({ firstName,lastName, email, password }),
     });
 
     if (response.ok) {
       console.log("Signup successful");
-      router.push("/login");
+      router.push("/");
     } else {
       console.log("Signup failed");
     }

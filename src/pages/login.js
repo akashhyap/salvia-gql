@@ -61,7 +61,7 @@ export default function Login({ siteLogoUrl }) {
           </div>
           <div className="mb-4">
             <label htmlFor="password">Password</label>
-            <div class="relative">
+            <div className="relative">
               <input
                 type="password"
                 id="password"

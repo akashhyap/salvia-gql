@@ -9,10 +9,10 @@ import Layout from "@/components/Layout";
 import Products from "@/components/products";
 import { withAuth } from "@/lib/utils/withAuth";
 
-const Home = ({ products, siteLogoUrl }) => {
+const Home = ({ products }) => {
   // console.log("home products:",products);
   return (
-    <Layout siteLogoUrl={siteLogoUrl}>
+    <Layout>
       <main className="max-w-6xl mx-auto py-6">
         <div className="grid grid-cols-1">
           <Products products={products} />
@@ -26,9 +26,6 @@ export default Home;
 export async function getStaticProps() {
   const PRODUCT_QUERY = gql`
     query {
-      getHeader {
-        siteLogoUrl
-      }
       products(first: 10) {
         edges {
           node {
@@ -66,12 +63,12 @@ export async function getStaticProps() {
     query: PRODUCT_QUERY,
   });
   const products = response?.data?.products;
-  const siteLogoUrl = response?.data?.getHeader.siteLogoUrl;
+  // const siteLogoUrl = response?.data?.getHeader.siteLogoUrl;
 
   return {
     props: {
       products,
-      siteLogoUrl,
+      // siteLogoUrl,
     },
     revalidate: 1,
   };

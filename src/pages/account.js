@@ -1,106 +1,113 @@
-// pages/account.js
-import jwt from "jsonwebtoken";
-import cookie from "cookie";
-import { useEffect } from "react";
-import { useRouter } from "next/router";
-import Cookies from "js-cookie";
-
-import Layout from "@/components/Layout";
-import { useIsAuthenticated } from "@/components/hook/useIsAuthenticated";
-import { verifyToken } from "@/lib/auth";
-import client from "@/lib/apollo";
+import jwt_decode from "jwt-decode";
+import { useState, useEffect } from "react";
 import { gql } from "@apollo/client";
+import client from "@/lib/apollo";
+import atob from "atob";
+import Layout from "@/components/Layout";
 
-function Account({ siteLogoUrl, userEmail }) {
-  const router = useRouter();
-  const { isAuthenticated, setIsAuthenticated, loading } = useIsAuthenticated(); // Update this line to include loading
+const GET_CUSTOMER_ORDERS = gql`
+  query GetCustomerOrders($customerId: Int) {
+    customer(customerId: $customerId) {
+      email
+      orders {
+        nodes {
+          id
+          orderKey
+          date
+          total
+          status
+          billing {
+            firstName
+            lastName
+            company
+            address1
+            address2
+            city
+            state
+            postcode
+            country
+            email
+            phone
+          }
+          customer {
+            id
+          }
+        }
+      }
+    }
+  }
+`;
+
+export default function Account() {
+  const [ordersData, setOrdersData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (!loading && !isAuthenticated) {
-      // Update this line to consider the loading state
-      router.push("/login");
-    }
-  }, [isAuthenticated, router, loading]); // Add loading to the dependency array
+    const fetchOrders = async () => {
+      if (localStorage.getItem("woo-session")) {
+        try {
+          console.log("Inside try block");
 
-  const handleLogout = async () => {
-    try {
-      const res = await fetch("/api/logout", {
-        method: "POST",
-      });
+          const authToken = localStorage.getItem("authToken");
+          const decodedToken = jwt_decode(authToken);
+          const base64UserId = decodedToken.userId;
+          const decodedUserId = atob(base64UserId);
+          const customerId = parseInt(decodedUserId.replace("user:", ""), 10);
 
-      if (res.ok) {
-        setIsAuthenticated(false);
-        Cookies.remove("authToken"); // Add this line to remove authToken cookie
-        router.push("/login");
+          console.log("CustomerId: ", customerId);
+          console.log("authToken: ", authToken);
+
+          const { data, errors } = await client.query({
+            query: GET_CUSTOMER_ORDERS,
+            variables: { customerId },
+          });
+
+          if (errors) {
+            console.error("GraphQL Errors:", errors);
+            throw new Error(errors[0].message);
+          }
+
+          console.log("Data fetched:", data);
+          setOrdersData(data);
+          setLoading(false);
+        } catch (err) {
+          setError(err.message);
+          setLoading(false);
+        }
       } else {
-        throw new Error("Logout failed");
+        setLoading(false);
       }
-    } catch (error) {
-      console.error("Logout failed:", error);
-    }
-  };
+    };
+
+    fetchOrders();
+  }, []);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
 
   return (
-    <Layout siteLogoUrl={siteLogoUrl}>
-      <main className="max-w-6xl mx-auto py-6">
-        <h1 className="text-4xl mb-5">User Account</h1>
-        <p>Email: {userEmail}</p>
-        <button
-          onClick={handleLogout}
-          className="px-3 py-1 mt-5 rounded-sm mr-3 text-sm border-solid border border-current hover:bg-slate-900 hover:text-white hover:border-slate-900"
-        >
-          Logout
-        </button>
-      </main>
+    <Layout>
+      <h1>Orders</h1>
+      {ordersData &&
+        ordersData.customer.orders.nodes.map((order) => (
+          <div key={order.id}>
+            <h2>Order ID: {order.id}</h2>
+            <h3>Total: {order.total}</h3>
+            <ul>
+              {order.lineItems.nodes.map((item) => (
+                <li key={item.product.id}>
+                  {item.product.name} (Qty: {item.quantity})
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
     </Layout>
   );
-}
-
-export default Account;
-
-export async function getServerSideProps(context) {
-  const ACCOUNT_QUERY = gql`
-    query {
-      getHeader {
-        siteLogoUrl
-      }
-    }
-  `;
-  const response = await client.query({
-    query: ACCOUNT_QUERY,
-  });
-
-  const siteLogoUrl = response?.data?.getHeader.siteLogoUrl;
-
-  const cookies = cookie.parse(context.req.headers.cookie || "");
-  const token = cookies["authToken"];
-
-  // console.log("Token in getServerSideProps:", token); // Debug: log the token value from the cookie
-
-  if (!token) {
-    return {
-      redirect: {
-        destination: "/login",
-        permanent: false,
-      },
-    };
-  }
-
-  const userData = jwt.decode(token);
-
-  // console.log("User data in getServerSideProps:", userData); // Debug: log the decoded user data
-
-  if (!userData) {
-    return {
-      redirect: {
-        destination: "/login",
-        permanent: false,
-      },
-      props: { userEmail: "" },
-    };
-  }
-
-  return {
-    props: { userEmail: userData.userEmail, siteLogoUrl },
-  };
 }

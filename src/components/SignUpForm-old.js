@@ -32,7 +32,7 @@ const SignUp = () => {
       }
 
       alert('Signup successful');
-      router.push('/login');
+      router.push('/');
     } catch (error) {
       console.error('Signup failed:', error);
     }
